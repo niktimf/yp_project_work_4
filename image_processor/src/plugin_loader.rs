@@ -105,8 +105,8 @@ impl PluginLoader {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Os {
     Linux,
-    Windows,
     MacOs,
+    Windows,
 }
 
 impl Os {

@@ -29,7 +29,7 @@ fn plugin_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/debug")
 }
 
-/// Helper: runs image_processor with given args,
+/// Helper: runs `image_processor` with given args,
 /// asserts success, and returns the output image.
 fn run_and_load(
     input: &Path,
@@ -47,7 +47,7 @@ fn run_and_load(
         .arg("--params")
         .arg(params_path)
         .arg("--plugin-path")
-        .arg(&plugin_dir())
+        .arg(plugin_dir())
         .assert()
         .success();
 
@@ -141,7 +141,7 @@ fn missing_input_file_returns_error() {
         .arg("--params")
         .arg(&params)
         .arg("--plugin-path")
-        .arg(&plugin_dir())
+        .arg(plugin_dir())
         .assert()
         .failure();
 }
@@ -165,7 +165,7 @@ fn missing_plugin_returns_error() {
         .arg("--params")
         .arg(&params)
         .arg("--plugin-path")
-        .arg(&plugin_dir())
+        .arg(plugin_dir())
         .assert()
         .failure();
 }
@@ -187,7 +187,7 @@ fn missing_params_file_returns_error() {
         .arg("--params")
         .arg("nonexistent_params.json")
         .arg("--plugin-path")
-        .arg(&plugin_dir())
+        .arg(plugin_dir())
         .assert()
         .failure();
 }
