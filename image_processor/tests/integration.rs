@@ -26,8 +26,7 @@ fn create_test_image(path: &Path) {
 /// `CARGO_MANIFEST_DIR` points to `image_processor/`,
 /// so the workspace `target/debug/` is one level up.
 fn plugin_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../target/debug")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/debug")
 }
 
 /// Helper: runs image_processor with given args,
@@ -69,8 +68,7 @@ fn mirror_horizontal_flips_pixels() {
     create_test_image(&input);
     fs::write(&params, r#"{"horizontal": true}"#).unwrap();
 
-    let result =
-        run_and_load(&input, &output, "mirror_plugin", &params);
+    let result = run_and_load(&input, &output, "mirror_plugin", &params);
 
     // After horizontal flip of a 4x4 image:
     // top-right quadrant should now be red (was top-left)
@@ -92,8 +90,7 @@ fn mirror_vertical_flips_pixels() {
     create_test_image(&input);
     fs::write(&params, r#"{"vertical": true}"#).unwrap();
 
-    let result =
-        run_and_load(&input, &output, "mirror_plugin", &params);
+    let result = run_and_load(&input, &output, "mirror_plugin", &params);
 
     // After vertical flip:
     // bottom-left quadrant should now be red (was top-left)
@@ -113,8 +110,7 @@ fn blur_modifies_image() {
     let params = dir.path().join("params.json");
 
     create_test_image(&input);
-    fs::write(&params, r#"{"radius": 1, "iterations": 1}"#)
-        .unwrap();
+    fs::write(&params, r#"{"radius": 1, "iterations": 1}"#).unwrap();
 
     let original = ImageReader::open(&input)
         .unwrap()
@@ -122,8 +118,7 @@ fn blur_modifies_image() {
         .unwrap()
         .into_rgba8();
 
-    let result =
-        run_and_load(&input, &output, "blur_plugin", &params);
+    let result = run_and_load(&input, &output, "blur_plugin", &params);
 
     // Blurred image should differ from original
     // (boundary between red and blue areas gets mixed)

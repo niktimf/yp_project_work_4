@@ -263,22 +263,11 @@ mod tests {
 
         /// Generates a random RGBA image with dimensions
         /// in range [1, 32] and random pixel data.
-        fn arbitrary_image()
-        -> impl Strategy<Value = (usize, usize, Vec<u8>)>
-        {
-            (1..=32usize, 1..=32usize).prop_flat_map(
-                |(w, h)| {
-                    let len = w * h * BYTES_PER_PIXEL;
-                    (
-                        Just(w),
-                        Just(h),
-                        proptest::collection::vec(
-                            any::<u8>(),
-                            len,
-                        ),
-                    )
-                },
-            )
+        fn arbitrary_image() -> impl Strategy<Value = (usize, usize, Vec<u8>)> {
+            (1..=32usize, 1..=32usize).prop_flat_map(|(w, h)| {
+                let len = w * h * BYTES_PER_PIXEL;
+                (Just(w), Just(h), proptest::collection::vec(any::<u8>(), len))
+            })
         }
 
         proptest! {
