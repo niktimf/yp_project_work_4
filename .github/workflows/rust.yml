@@ -48,5 +48,8 @@ jobs:
       - name: Check unused dependencies
         run: cargo machete
 
+      - name: Build workspace
+        run: cargo build --workspace
+
       - name: Run tests
         run: cargo test --workspace --verbose
