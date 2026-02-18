@@ -57,7 +57,7 @@ fn run(args: &Args) -> Result<(), AppError> {
 
     let loader = PluginLoader::load(&args.plugin, &args.plugin_path)?;
 
-    loader.process_image(width, height, rgba_data, &params);
+    loader.process_image(width, height, rgba_data, &params)?;
 
     log::info!("Saving result: {}", args.output.display());
 

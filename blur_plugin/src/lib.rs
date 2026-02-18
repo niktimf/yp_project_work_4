@@ -1,4 +1,4 @@
-use std::ffi::{CStr, c_char};
+use std::ffi::{CStr, c_char, c_int};
 
 use serde::Deserialize;
 
@@ -25,6 +25,8 @@ impl Default for BlurParams {
 
 /// Plugin entry point — exported with C-compatible ABI.
 ///
+/// Returns 0 on success, non-zero on error.
+///
 /// # Safety
 ///
 /// - `rgba_data` must point to a valid buffer of size
@@ -37,22 +39,22 @@ pub unsafe extern "C" fn process_image(
     height: u32,
     rgba_data: *mut u8,
     params: *const c_char,
-) {
+) -> c_int {
     if rgba_data.is_null() || params.is_null() {
-        return;
+        return 1;
     }
 
     let Some(w) = usize::try_from(width).ok().filter(|&v| v > 0) else {
-        return;
+        return 2;
     };
     let Some(h) = usize::try_from(height).ok().filter(|&v| v > 0) else {
-        return;
+        return 2;
     };
     let Some(buf_len) = w
         .checked_mul(h)
         .and_then(|v| v.checked_mul(BYTES_PER_PIXEL))
     else {
-        return;
+        return 3;
     };
 
     // SAFETY: we verified that rgba_data is non-null and buf_len does not overflow.
@@ -63,8 +65,9 @@ pub unsafe extern "C" fn process_image(
     // The caller guarantees it points to a valid null-terminated C string.
     let params_str = unsafe { CStr::from_ptr(params) }.to_str().unwrap_or("");
 
-    let blur_params: BlurParams =
-        serde_json::from_str(params_str).unwrap_or_default();
+    let Ok(blur_params) = serde_json::from_str::<BlurParams>(params_str) else {
+        return 4;
+    };
 
     weighted_blur(
         data,
@@ -73,6 +76,8 @@ pub unsafe extern "C" fn process_image(
         usize::try_from(blur_params.radius).unwrap_or(0),
         blur_params.iterations,
     );
+
+    0
 }
 
 /// Applies weighted blur to an RGBA buffer.

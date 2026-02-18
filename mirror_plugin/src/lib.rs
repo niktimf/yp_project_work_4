@@ -1,4 +1,4 @@
-use std::ffi::{CStr, c_char};
+use std::ffi::{CStr, c_char, c_int};
 
 use serde::Deserialize;
 
@@ -17,6 +17,8 @@ struct MirrorParams {
 
 /// Plugin entry point — exported with C-compatible ABI.
 ///
+/// Returns 0 on success, non-zero on error.
+///
 /// # Safety
 ///
 /// - `rgba_data` must point to a valid buffer of size
@@ -29,22 +31,22 @@ pub unsafe extern "C" fn process_image(
     height: u32,
     rgba_data: *mut u8,
     params: *const c_char,
-) {
+) -> c_int {
     if rgba_data.is_null() || params.is_null() {
-        return;
+        return 1;
     }
 
     let Some(w) = usize::try_from(width).ok().filter(|&v| v > 0) else {
-        return;
+        return 2;
     };
     let Some(h) = usize::try_from(height).ok().filter(|&v| v > 0) else {
-        return;
+        return 2;
     };
     let Some(buf_len) = w
         .checked_mul(h)
         .and_then(|v| v.checked_mul(BYTES_PER_PIXEL))
     else {
-        return;
+        return 3;
     };
 
     // SAFETY: we verified that rgba_data is non-null and
@@ -58,11 +60,9 @@ pub unsafe extern "C" fn process_image(
     // null-terminated C string.
     let params_str = unsafe { CStr::from_ptr(params) }.to_str().unwrap_or("");
 
-    let mirror_params: MirrorParams = serde_json::from_str(params_str)
-        .unwrap_or(MirrorParams {
-            horizontal: false,
-            vertical: false,
-        });
+    let Ok(mirror_params) = serde_json::from_str::<MirrorParams>(params_str) else {
+        return 4;
+    };
 
     if mirror_params.horizontal {
         flip_horizontal(data, w, h);
@@ -70,6 +70,8 @@ pub unsafe extern "C" fn process_image(
     if mirror_params.vertical {
         flip_vertical(data, w, h);
     }
+
+    0
 }
 
 /// Flips the image horizontally — swaps pixels in each row

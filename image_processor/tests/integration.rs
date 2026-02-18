@@ -59,6 +59,7 @@ fn run_and_load(
 }
 
 #[test]
+#[ignore = "requires built plugin libraries (cargo build --workspace)"]
 fn mirror_horizontal_flips_pixels() {
     let dir = TempDir::new().unwrap();
     let input = dir.path().join("input.png");
@@ -81,6 +82,7 @@ fn mirror_horizontal_flips_pixels() {
 }
 
 #[test]
+#[ignore = "requires built plugin libraries (cargo build --workspace)"]
 fn mirror_vertical_flips_pixels() {
     let dir = TempDir::new().unwrap();
     let input = dir.path().join("input.png");
@@ -103,6 +105,7 @@ fn mirror_vertical_flips_pixels() {
 }
 
 #[test]
+#[ignore = "requires built plugin libraries (cargo build --workspace)"]
 fn blur_modifies_image() {
     let dir = TempDir::new().unwrap();
     let input = dir.path().join("input.png");
@@ -147,6 +150,7 @@ fn missing_input_file_returns_error() {
 }
 
 #[test]
+#[ignore = "requires built plugin libraries (cargo build --workspace)"]
 fn missing_plugin_returns_error() {
     let dir = TempDir::new().unwrap();
     let input = dir.path().join("input.png");

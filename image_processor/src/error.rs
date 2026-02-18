@@ -27,6 +27,9 @@ pub enum AppError {
     )]
     SymbolLoad(libloading::Error),
 
+    #[error("plugin returned error code {code}")]
+    PluginExec { code: std::ffi::c_int },
+
     #[error("I/O error for '{path}': {source}")]
     Io {
         path: PathBuf,

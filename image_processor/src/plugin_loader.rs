@@ -6,10 +6,15 @@ use libloading::{Library, Symbol};
 use crate::error::AppError;
 
 /// Plugin function type matching the C signature:
-/// `void process_image(uint32_t width, uint32_t height,
-///                     uint8_t* rgba_data, const char* params)`
-type ProcessImageFn =
-    unsafe extern "C" fn(u32, u32, *mut u8, *const std::ffi::c_char);
+/// `int process_image(uint32_t width, uint32_t height,
+///                    uint8_t* rgba_data, const char* params)`
+/// Returns 0 on success, non-zero on error.
+type ProcessImageFn = unsafe extern "C" fn(
+    u32,
+    u32,
+    *mut u8,
+    *const std::ffi::c_char,
+) -> std::ffi::c_int;
 
 /// Plugin loader — wraps a dynamic library and provides
 /// a safe interface for calling `process_image`.
@@ -70,13 +75,18 @@ impl PluginLoader {
     /// - `rgba_data` — mutable RGBA pixel buffer
     ///   (length = width * height * 4)
     /// - `params` — parameter string for the plugin
+    ///
+    /// # Errors
+    ///
+    /// Returns `AppError::PluginExec` if the plugin returns
+    /// a non-zero error code.
     pub fn process_image(
         &self,
         width: u32,
         height: u32,
         rgba_data: &mut [u8],
         params: &str,
-    ) {
+    ) -> Result<(), AppError> {
         let params_cstring = CString::new(params).unwrap_or_default();
 
         log::debug!(
@@ -90,13 +100,19 @@ impl PluginLoader {
         // SAFETY: we pass a valid pointer to image data and a C string for parameters.
         // The rgba_data buffer remains alive for the entire call.
         // Buffer size = width * height * 4 bytes.
-        unsafe {
+        let code = unsafe {
             (self.process_fn)(
                 width,
                 height,
                 rgba_data.as_mut_ptr(),
                 params_cstring.as_ptr(),
-            );
+            )
+        };
+
+        if code == 0 {
+            Ok(())
+        } else {
+            Err(AppError::PluginExec { code })
         }
     }
 }

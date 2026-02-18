@@ -78,7 +78,7 @@ Applies weighted blur with configurable radius and iterations.
 All plugins export a single C function:
 
 ```c
-void process_image(
+int process_image(
     uint32_t width,
     uint32_t height,
     uint8_t* rgba_data,
@@ -86,7 +86,7 @@ void process_image(
 );
 ```
 
-Plugins are compiled as `cdylib` and modify the RGBA buffer in-place.
+Returns 0 on success, non-zero on error. Plugins are compiled as `cdylib` and modify the RGBA buffer in-place.
 
 ## Running Tests
 
