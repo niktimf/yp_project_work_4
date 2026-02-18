@@ -60,7 +60,8 @@ pub unsafe extern "C" fn process_image(
     // null-terminated C string.
     let params_str = unsafe { CStr::from_ptr(params) }.to_str().unwrap_or("");
 
-    let Ok(mirror_params) = serde_json::from_str::<MirrorParams>(params_str) else {
+    let Ok(mirror_params) = serde_json::from_str::<MirrorParams>(params_str)
+    else {
         return 4;
     };
 
